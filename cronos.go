@@ -7,6 +7,7 @@ type key struct {
 }
 
 type Cronos struct {
+	cache
 }
 
 type constructor interface{}
