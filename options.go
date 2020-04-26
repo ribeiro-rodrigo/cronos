@@ -6,7 +6,7 @@ type OptionsList []Options
 // Options - dependency injection options
 type Options struct {
 	key      key
-	task     func(objectKey key, digo *Apollo)
+	task     func(objectKey key, cronos *Cronos)
 	priority int
 }
 
