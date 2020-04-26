@@ -14,6 +14,10 @@ func (cronos *Cronos) Fetch(typed reflect.Type) interface{} {
 	return nil
 }
 
+func (cronos *Cronos) getArgs(constructor constructor) []reflect.Type {
+	return nil
+}
+
 type constructor interface{}
 type component interface{}
 

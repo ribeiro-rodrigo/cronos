@@ -55,3 +55,39 @@ func As(typei interface{}) Options {
 		priority: 2,
 	}
 }
+
+// Qualifier - determines the specific type of dependency injected as an interface.
+func Qualifier(typeObject, typeInterface interface{}) Options {
+	return Options{
+		task: func(objectKey key, cronos *Cronos) {
+
+			qualifierObjectKey := key{reflect.TypeOf(typeObject).Elem()}
+			qualificerInterfaceKey := key{reflect.TypeOf(typeInterface)}
+
+			qualifierObject := cronos.Fetch(qualifierObjectKey.typed)
+			qualifierObjectValue := reflect.ValueOf(qualifierObject)
+
+			constructor := cronos.cache.constructors[objectKey]
+			argsOldConstructor := cronos.getArgs(constructor)
+
+			args := make([]reflect.Value, len(argsOldConstructor))
+
+			for i := 0; i < len(argsOldConstructor); i++ {
+				objectInterfaceType := qualificerInterfaceKey.typed.Elem()
+
+				if argsOldConstructor[i].Implements(objectInterfaceType) {
+					args[i] = qualifierObjectValue
+				} else {
+					args[i] = reflect.ValueOf(cronos.Fetch(argsOldConstructor[i]))
+				}
+			}
+
+			newConstructor := reflect.MakeFunc(reflect.TypeOf(constructor), func(arguments []reflect.Value) []reflect.Value {
+				return reflect.ValueOf(constructor).Call(args)
+			})
+
+			cronos.cache.constructors[objectKey] = newConstructor.Interface()
+		},
+		priority: 3,
+	}
+}
