@@ -1,5 +1,7 @@
 package cronos
 
+import "reflect"
+
 //OptionsList - list of options
 type OptionsList []Options
 
@@ -31,5 +33,25 @@ func Singleton(isSingleton bool) Options {
 			}
 		},
 		priority: 1,
+	}
+}
+
+// As - specify whether constructor returns an interface
+func As(typei interface{}) Options {
+	return Options{
+		task: func(objectKey key, cronos *Cronos) {
+			object, ok := cronos.cache.components[objectKey]
+
+			if !ok {
+				object = cronos.Fetch(objectKey.typed)
+			}
+
+			ikey := key{reflect.TypeOf(typei).Elem()}
+
+			if _, ok := cronos.cache.components[ikey]; !ok {
+				cronos.cache.components[ikey] = object
+			}
+		},
+		priority: 2,
 	}
 }

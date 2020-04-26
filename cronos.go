@@ -10,6 +10,10 @@ type Cronos struct {
 	cache
 }
 
+func (cronos *Cronos) Fetch(typed reflect.Type) interface{} {
+	return nil
+}
+
 type constructor interface{}
 type component interface{}
 
