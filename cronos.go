@@ -8,3 +8,13 @@ type key struct {
 
 type Cronos struct {
 }
+
+type constructor interface{}
+type component interface{}
+
+type cache struct {
+	components    map[key]component
+	constructors  map[key]constructor
+	notSingletons map[key]bool
+	options       OptionsList
+}
