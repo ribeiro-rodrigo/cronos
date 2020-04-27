@@ -1,6 +1,9 @@
 package cronos
 
-import "reflect"
+import (
+	"reflect"
+	"sort"
+)
 
 type key struct {
 	typed reflect.Type
@@ -10,8 +13,30 @@ type Cronos struct {
 	cache
 }
 
-func (cronos *Cronos) invokeConstructor(constructor constructor,
-	args []reflect.Type) (returns []reflect.Value) {
+// New - initializes the dependency injection container
+func New() Cronos {
+	return Cronos{
+		cache{
+			components:    map[key]component{},
+			constructors:  map[key]constructor{},
+			options:       OptionsList{},
+			notSingletons: map[key]bool{},
+		},
+	}
+}
+
+func (cronos *Cronos) proccessOptions() {
+
+	sort.Sort(cronos.cache.options)
+
+	for i := 0; i < len(cronos.cache.options); i++ {
+		op := cronos.cache.options[i]
+		task := op.task
+		task(op.key, cronos)
+	}
+}
+
+func (cronos *Cronos) invokeConstructor(constructor constructor, args []reflect.Type) (returns []reflect.Value) {
 
 	dependencies := make([]reflect.Value, len(args))
 
