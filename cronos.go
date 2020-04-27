@@ -2,6 +2,7 @@ package cronos
 
 import (
 	"reflect"
+	"runtime"
 	"sort"
 )
 
@@ -49,6 +50,10 @@ func (cronos *Cronos) invokeConstructor(constructor constructor, args []reflect.
 
 	returns = constructorValue.Call(dependencies)
 	return
+}
+
+func (cronos *Cronos) getFunctionName(valueFunc reflect.Value) string {
+	return runtime.FuncForPC(valueFunc.Pointer()).Name()
 }
 
 func (cronos *Cronos) Fetch(typed reflect.Type) interface{} {
