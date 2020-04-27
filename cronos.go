@@ -55,7 +55,15 @@ func (cronos *Cronos) Fetch(typed reflect.Type) interface{} {
 }
 
 func (cronos *Cronos) getArgs(constructor constructor) []reflect.Type {
-	return nil
+	typec := reflect.TypeOf(constructor)
+
+	deps := make([]reflect.Type, typec.NumIn())
+
+	for i := 0; i < len(deps); i++ {
+		deps[i] = typec.In(i)
+	}
+
+	return deps
 }
 
 type constructor interface{}
