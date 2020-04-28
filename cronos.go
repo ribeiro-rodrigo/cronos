@@ -1,6 +1,7 @@
 package cronos
 
 import (
+	"fmt"
 	"reflect"
 	"runtime"
 	"sort"
@@ -52,6 +53,31 @@ func (cronos *Cronos) invokeConstructor(constructor constructor, args []reflect.
 	return
 }
 
+func (cronos *Cronos) validateConstructor(valueFunc reflect.Value) error {
+
+	typed := valueFunc.Type()
+
+	if typed.Kind() != reflect.Func {
+		return fmt.Errorf("The %s constructor must be a function", typed.Kind().String())
+	}
+
+	if typed.NumOut() > 2 || typed.NumOut() < 1 {
+		return fmt.Errorf("The number of elements returned in the %s constructor must be a minimum of 1 and a maximum of 2", cronos.getFunctionName(valueFunc))
+	}
+
+	if typed.NumOut() == 2 {
+
+		errorInterface := reflect.TypeOf((*error)(nil)).Elem()
+		secondTypeReturn := typed.Out(1)
+
+		if !secondTypeReturn.Implements(errorInterface) {
+			return fmt.Errorf("The second element returned in the %s constructor must be an error", cronos.getFunctionName(valueFunc))
+		}
+	}
+
+	return nil
+}
+
 func (cronos *Cronos) getFunctionName(valueFunc reflect.Value) string {
 	return runtime.FuncForPC(valueFunc.Pointer()).Name()
 }
@@ -94,6 +120,31 @@ func (cronos *Cronos) getArgs(constructor constructor) []reflect.Type {
 	}
 
 	return deps
+}
+
+// Register - register dependencies in the container
+func (cronos *Cronos) Register(constructor constructor, options ...Options) {
+
+	valued := reflect.Indirect(reflect.ValueOf(constructor))
+
+	err := cronos.validateConstructor(valued)
+
+	if err != nil {
+		panic(err)
+	}
+
+	k := key{valued.Type().Out(0)}
+
+	optionsRegistered := []Options{}
+
+	for _, op := range options {
+		op.key = k
+		optionsRegistered = append(optionsRegistered, op)
+	}
+
+	cronos.cache.constructors[k] = constructor
+	cronos.cache.options = append(cronos.cache.options, optionsRegistered[0:len(options)]...)
+
 }
 
 type constructor interface{}
