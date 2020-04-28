@@ -66,3 +66,43 @@ func TestInject(t *testing.T) {
 	})
 
 }
+
+func TestInjectMultiplesDependencies(t *testing.T) {
+
+	type person struct {
+		name string
+	}
+
+	type project struct {
+		name string
+	}
+
+	type company struct {
+		name    string
+		person  person
+		project project
+	}
+
+	newPerson := func() person {
+		return person{name: "Bob"}
+	}
+
+	newProject := func() project {
+		return project{name: "cronos"}
+	}
+
+	newCompany := func(person person, project project) company {
+		return company{person: person, project: project}
+	}
+
+	container := New()
+	container.Register(newProject)
+	container.Register(newCompany)
+	container.Register(newPerson)
+
+	container.Init(func(company company) {
+		if company.person.name != "Bob" || company.project.name != "cronos" {
+			t.Error()
+		}
+	})
+}
