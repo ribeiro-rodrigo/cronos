@@ -2,9 +2,12 @@ package cronos
 
 import (
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"log"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func uuidGenerator() string {
@@ -105,4 +108,31 @@ func TestInjectMultiplesDependencies(t *testing.T) {
 			t.Error()
 		}
 	})
+}
+
+func TestInjectDependencyError(t *testing.T) {
+
+	type person struct {
+		name string
+	}
+
+	type company struct {
+		name   string
+		person person
+	}
+
+	newPerson := func() (person, error) {
+		return person{}, errors.New("error creating person")
+	}
+
+	newCompany := func(person person) company {
+		return company{person: person}
+	}
+
+	container := New()
+
+	container.Register(newCompany)
+	container.Register(newPerson)
+
+	assert.Panics(t, func() { container.Init(func(company company) {}) }, "error creating person")
 }
