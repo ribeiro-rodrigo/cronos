@@ -129,6 +129,7 @@ func (cronos *Cronos) Register(constructor constructor, options ...Options) {
 
 }
 
+// Fetch - build requested dependency
 func (cronos *Cronos) Fetch(typed reflect.Type) interface{} {
 	key := key{typed}
 
