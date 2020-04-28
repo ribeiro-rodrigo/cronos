@@ -157,3 +157,11 @@ func (cronos *Cronos) Fetch(typed reflect.Type) interface{} {
 
 	return object
 }
+
+// Init - initializes the dependency injection container
+func (cronos *Cronos) Init(initFunc constructor) {
+
+	cronos.proccessOptions()
+	args := cronos.getArgs(initFunc)
+	cronos.invokeConstructor(initFunc, args)
+}
