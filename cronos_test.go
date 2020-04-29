@@ -201,3 +201,35 @@ func TestSpecifyingSingleton(t *testing.T) {
 		}
 	})
 }
+
+func TestInjectNotSingleton(t *testing.T) {
+
+	type id struct{ number string }
+
+	type employer struct{ id }
+
+	type worker struct{ id }
+
+	newID := func() id {
+		return id{number: uuidGenerator()}
+	}
+
+	newEmployer := func(id id) employer {
+		return employer{id}
+	}
+
+	newWorker := func(id id) worker {
+		return worker{id}
+	}
+
+	container := New()
+	container.Register(newID, Singleton(false))
+	container.Register(newEmployer)
+	container.Register(newWorker)
+
+	container.Init(func(employer employer, worker worker) {
+		if employer.id == worker.id {
+			t.Error()
+		}
+	})
+}
