@@ -233,3 +233,68 @@ func TestInjectNotSingleton(t *testing.T) {
 		}
 	})
 }
+
+func TestImplementDefaultInterface(t *testing.T) {
+
+	type subject struct {
+		observable
+	}
+
+	newSubject := func(observable observable) subject {
+		return subject{observable}
+	}
+
+	newObserver := func() observable {
+		return observer{}
+	}
+
+	container := New()
+	container.Register(newSubject)
+	container.Register(newObserver, As(new(observable)))
+
+	container.Init(func(subject subject) {
+		if subject.observable.observe() != "observer" {
+			t.Error()
+		}
+	})
+
+}
+
+func TestMultiplesImplementationsInterface(t *testing.T) {
+
+	type person struct {
+		observable observable
+	}
+
+	type subject struct {
+		observable
+	}
+
+	newPerson := func(observable observable) person {
+		return person{observable}
+	}
+
+	newSubject := func(observable observable) subject {
+		return subject{observable}
+	}
+
+	newVisualizer := func() visualizer {
+		return visualizer{}
+	}
+
+	newObserver := func() observer {
+		return observer{}
+	}
+
+	container := New()
+	container.Register(newSubject)
+	container.Register(newObserver, As(new(observable)))
+	container.Register(newVisualizer)
+	container.Register(newPerson, Qualifier(new(visualizer), new(observable)))
+
+	container.Init(func(person person, subject subject) {
+		if subject.observable.observe() == person.observable.observe() {
+			t.Error()
+		}
+	})
+}
