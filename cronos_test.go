@@ -338,3 +338,12 @@ func TestSecondReturnNotError(t *testing.T) {
 
 	assert.Panics(t, func() { container.Register(newPerson) })
 }
+
+func TestConstructorNotFunction(t *testing.T) {
+
+	type person struct{ name string }
+
+	container := New()
+
+	assert.Panics(t, func() { container.Register(person{}) })
+}
