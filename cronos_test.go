@@ -298,3 +298,18 @@ func TestMultiplesImplementationsInterface(t *testing.T) {
 		}
 	})
 }
+
+func TestInvalidConstructorManyReturns(t *testing.T) {
+
+	type person struct{ name string }
+	type dog struct{ name string }
+
+	newPerson := func() (person, dog, error) {
+		return person{}, dog{}, nil
+	}
+
+	container := New()
+
+	assert.Panics(t, func() { container.Register(newPerson) })
+
+}
