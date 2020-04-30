@@ -313,3 +313,14 @@ func TestInvalidConstructorManyReturns(t *testing.T) {
 	assert.Panics(t, func() { container.Register(newPerson) })
 
 }
+
+func TestNoReturnConstructor(t *testing.T) {
+
+	newPerson := func() {
+	}
+
+	container := New()
+
+	assert.Panics(t, func() { container.Register(newPerson) })
+
+}
