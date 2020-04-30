@@ -324,3 +324,17 @@ func TestNoReturnConstructor(t *testing.T) {
 	assert.Panics(t, func() { container.Register(newPerson) })
 
 }
+
+func TestSecondReturnNotError(t *testing.T) {
+
+	type person struct{ name string }
+	type dog struct{ name string }
+
+	newPerson := func() (person, dog) {
+		return person{}, dog{}
+	}
+
+	container := New()
+
+	assert.Panics(t, func() { container.Register(newPerson) })
+}
