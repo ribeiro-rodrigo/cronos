@@ -135,3 +135,38 @@ container.Init(func(car Car, airplane Airplane){
 Different instances of Person are injected into Airplane and Car.
 
 ### Interface-based dependencies
+
+Cronos allows components to request dependencies that implement a given interface.
+
+```go
+type Listener interface {
+  observe() 
+}
+
+type Observer struct{}
+
+type Subject struct {
+  observer Observer 
+}
+
+func (o Observer) observe(){
+  fmt.Println("watching ...")
+}
+
+func NewObserver()Observer{
+  return Observer{}
+}
+
+func NewSubject(observer Listener)Subject{
+  return Subject{observer:observer}
+}
+
+container := apollo.New() 
+container.Register(NewObserver,apollo.As(new(Listener)))
+container.Register(NewSubject)
+
+container.Init(func(sub Subject){
+  fmt.Println(sub.observer.observe())
+})
+  
+```
