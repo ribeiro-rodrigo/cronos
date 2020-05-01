@@ -20,3 +20,34 @@ and ensuring that `$GOPATH/bin` is added to your `$PATH`.
 Cronps is currently in *beta*. During the beta period, we encourage you to use Cronos and provide feedback. 
 We will focus on improving and evolving the library as the needs of the community.
 
+## Usage
+
+The Cronos dependency injection container can be created as follows.
+
+```go
+container := cronos.New()
+```
+Cronos is based on building dependencies through constructor functions. Below is an example of creation.
+
+```go
+type Person struct {
+  name string 
+}
+
+func NewPerson()Person{
+  return Person{"Bob"}
+}
+```
+Constructor functions must be registered via the Register method of the container.
+
+```go
+container.Register(NewPerson)
+```
+The container can be initialized using the Init method.
+
+```go
+container.Init(func(person Person){
+  fmt.Println(person.name)
+})
+```
+
