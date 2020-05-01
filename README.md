@@ -94,3 +94,44 @@ func NewCar(person Person)(Car,error){
 }
 ```
 ### Non singleton dependencies
+
+By default, all injected dependencies are singleton, but you can change this behavior through Apollo options.
+
+```go
+type Person struct {
+  name string 
+}
+
+type Car struct{
+  name string 
+  owner Person
+}
+
+type Airplane struct {
+  owner Person
+}
+
+func NewPerson()Person{
+  return Person{"Bob"}
+}
+
+func NewCar(person Person)Car{
+  return Car{name:"Ferrari",owner:person}
+}
+
+func NewAirplane(person Person)Airplane{
+  return Airplane{owner:person}
+}
+
+container.Register(NewPerson, apollo.Singleton(false))
+container.Register(NewCar)
+container.Register(NewAirplane)
+
+container.Init(func(car Car, airplane Airplane){
+  fmt.Println(&car.owner,&airplane.owner)
+})
+
+```
+Different instances of Person are injected into Airplane and Car.
+
+### Interface-based dependencies
