@@ -170,3 +170,4 @@ container.Init(func(sub Subject){
 })
   
 ```
+The As function specifies that the default implementation for the Listener interface is the Observer structure.
