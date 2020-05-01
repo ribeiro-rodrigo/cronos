@@ -50,4 +50,47 @@ container.Init(func(person Person){
   fmt.Println(person.name)
 })
 ```
+The Init method initializes the container and builds the dependency tree.
 
+### Injecting Dependencies
+
+Dependencies must be injected through constructor functions
+
+```go
+type Person struct {
+  name string 
+}
+
+type Car struct{
+  name string 
+  owner Person
+}
+
+func NewPerson()Person{
+  return Person{"Bob"}
+}
+
+func NewCar(person Person)Car{
+  return Car{name:"Ferrari",owner:person}
+}
+
+container.Register(NewPerson)
+container.Register(NewCar)
+
+container.Init(func(car Car){
+  fmt.Println(car.name,car.owner.name)
+})
+
+```
+Optionally, constructor functions may return a second argument if an error has to be flagged in the dependency build
+
+```go
+func NewCar(person Person)(Car,error){
+  if person.name != "Bob"{
+    return Car{}, errors.New("The person's name must be Bob")
+  }else{
+    return Car{name:"Ferrari",owner:person}
+  }
+}
+```
+### Non singleton dependencies
