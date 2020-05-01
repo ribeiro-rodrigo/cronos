@@ -95,7 +95,7 @@ func NewCar(person Person)(Car,error){
 ```
 ### Non singleton dependencies
 
-By default, all injected dependencies are singleton, but you can change this behavior through Apollo options.
+By default, all injected dependencies are singleton, but you can change this behavior through Cronos options.
 
 ```go
 type Person struct {
@@ -123,7 +123,7 @@ func NewAirplane(person Person)Airplane{
   return Airplane{owner:person}
 }
 
-container.Register(NewPerson, apollo.Singleton(false))
+container.Register(NewPerson, cronos.Singleton(false))
 container.Register(NewCar)
 container.Register(NewAirplane)
 
@@ -161,8 +161,8 @@ func NewSubject(observer Listener)Subject{
   return Subject{observer:observer}
 }
 
-container := apollo.New() 
-container.Register(NewObserver,apollo.As(new(Listener)))
+container := cronos.New() 
+container.Register(NewObserver,cronos.As(new(Listener)))
 container.Register(NewSubject)
 
 container.Init(func(sub Subject){
@@ -171,3 +171,61 @@ container.Init(func(sub Subject){
   
 ```
 The As function specifies that the default implementation for the Listener interface is the Observer structure.
+
+### Multiple interface implementations
+
+Cronos also allows you to specify alternative implementations for the same interface beyond the default implementation through the Qualifier function.
+
+```go
+type Listener interface {
+  observe() 
+}
+
+type Observer struct{}
+
+type Monitor struct{}
+
+type Subject struct {
+  observer Observer 
+}
+
+type Subject2 struct {
+  observer Observer 
+}
+
+func (o Observer) observe(){
+  fmt.Println("watching Observer ...")
+}
+
+func (o Monitor) observe(){
+  fmt.Println("watching Monitor ...")
+}
+
+func NewObserver()Observer{
+  return Observer{}
+}
+
+func NewMonitor()Monitor{
+  return Monitor{}
+}
+
+func NewSubject(observer Listener)Subject{
+  return Subject{observer:observer}
+}
+
+func NewSubject2(observer Listener)Subject2{
+  return Subject2{observer:observer}
+}
+
+container := cronos.New() 
+container.Register(NewObserver,cronos.As(new(Listener)))
+container.Register(NewSubject)
+container.Register(NewSubject2,cronos.Qualifier(new(Monitor),new(Listener)))
+container.Register(NewMonitor)
+
+container.Init(func(sub Subject, sub2 Subject2){
+  fmt.Println(sub.observer.observe())
+  fmt.Println(sub2.observer.observe())
+})
+  
+```
