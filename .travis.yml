@@ -1,0 +1,16 @@
+language: go
+
+env: GO111MODULE=on
+
+jobs:
+  include:
+    - go: 1.12.x
+      script: bash test.sh
+      os: linux
+    - go: 1.11.x
+      script: bash test.sh
+      os: linux
+    - go: 1.12.x
+      script: bash test.sh
+      os: osx
+    - go: 1.12.x
