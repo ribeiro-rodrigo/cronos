@@ -16,3 +16,7 @@ jobs:
     - go: 1.12.x
       script: bash test.sh
       os: windows
+
+after_success:
+  - go test -race -coverprofile=coverage.txt -covermode=atomic
+  - bash <(curl -s https://codecov.io/bash)
