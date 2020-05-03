@@ -1,5 +1,8 @@
 # Cronos: Dependency Injection for Go
 
+[![Build Status](https://travis-ci.org/ribeiro-rodrigo/cronos.svg?branch=master)](https://travis-ci.org/ribeiro-rodrigo/cronos)
+
+
 Cronos is a reflection-based dependency injection library designed for Go projects.
 Dependencies between components are represented in Cronos as constructor function 
 parameters, encouraging explicit initialization rather than global variables.
