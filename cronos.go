@@ -165,3 +165,8 @@ func (cronos *Cronos) Init(initFunc constructor) {
 	args := cronos.getArgs(initFunc)
 	cronos.invokeConstructor(initFunc, args)
 }
+
+func Lookup[T interface{}](container Cronos, typed T) T {
+	typec := reflect.TypeOf(typed)
+	return container.Fetch(typec).(T)
+}
