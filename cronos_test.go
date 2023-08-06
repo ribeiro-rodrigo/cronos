@@ -368,14 +368,14 @@ func TestLookup(t *testing.T) {
 	}
 
 	container := New()
-	container.Register(newID, Singleton(true))
+
 	container.Register(newEmployer)
 	container.Register(newWorker)
+	container.Register(newID, Singleton(false))
 
 	instanceWorker := Lookup(container, worker{})
 	instanceEmployer := Lookup(container, employer{})
-
-	if instanceWorker.id != instanceEmployer.id {
+	if instanceWorker.id.number == instanceEmployer.id.number {
 		t.Error()
 	}
 }

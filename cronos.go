@@ -12,6 +12,7 @@ type key struct {
 }
 
 type Cronos struct {
+	initialized bool
 	cache
 }
 
@@ -28,16 +29,21 @@ type cache struct {
 // New - initializes the dependency injection container
 func New() Cronos {
 	return Cronos{
-		cache{
+		cache: cache{
 			components:    map[key]component{},
 			constructors:  map[key]constructor{},
 			options:       OptionsList{},
 			notSingletons: map[key]bool{},
 		},
+		initialized: false,
 	}
 }
 
 func (cronos *Cronos) proccessOptions() {
+
+	if cronos.initialized {
+		return
+	}
 
 	sort.Sort(cronos.cache.options)
 
@@ -46,6 +52,8 @@ func (cronos *Cronos) proccessOptions() {
 		task := op.task
 		task(op.key, cronos)
 	}
+
+	cronos.initialized = true
 }
 
 func (cronos *Cronos) invokeConstructor(constructor constructor, args []reflect.Type) (returns []reflect.Value) {
@@ -160,13 +168,13 @@ func (cronos *Cronos) Fetch(typed reflect.Type) interface{} {
 
 // Init - initializes the dependency injection container
 func (cronos *Cronos) Init(initFunc constructor) {
-
 	cronos.proccessOptions()
 	args := cronos.getArgs(initFunc)
 	cronos.invokeConstructor(initFunc, args)
 }
 
 func Lookup[T interface{}](container Cronos, typed T) T {
+	container.proccessOptions()
 	typec := reflect.TypeOf(typed)
 	return container.Fetch(typec).(T)
 }
