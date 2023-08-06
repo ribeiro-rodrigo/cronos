@@ -56,6 +56,12 @@ container.Init(func(person Person){
 ```
 The Init method initializes the container and builds the dependency tree.
 
+The Lookup method is an alternative to the Init method. Lookup lets you search for dependencies and initialize the container automatically.
+
+```go
+person := cronos.Lookup(container, Person{})
+```
+
 ### Injecting Dependencies
 
 Dependencies must be injected through constructor functions

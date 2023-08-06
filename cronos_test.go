@@ -347,3 +347,35 @@ func TestConstructorNotFunction(t *testing.T) {
 
 	assert.Panics(t, func() { container.Register(person{}) })
 }
+
+func TestLookup(t *testing.T) {
+	type id struct{ number string }
+
+	type employer struct{ id }
+
+	type worker struct{ id }
+
+	newID := func() id {
+		return id{number: uuidGenerator()}
+	}
+
+	newEmployer := func(id id) employer {
+		return employer{id}
+	}
+
+	newWorker := func(id id) worker {
+		return worker{id}
+	}
+
+	container := New()
+
+	container.Register(newEmployer)
+	container.Register(newWorker)
+	container.Register(newID, Singleton(false))
+
+	instanceWorker := Lookup(container, worker{})
+	instanceEmployer := Lookup(container, employer{})
+	if instanceWorker.id.number == instanceEmployer.id.number {
+		t.Error()
+	}
+}
